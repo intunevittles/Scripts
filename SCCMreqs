@@ -1,40 +1,29 @@
-# ============================
-# ConfigMgr AD Object Bootstrap
-# ============================
-
-# Purpose:
-# - Create required OUs
-# - Create SCCM-related security groups
-# - Create service accounts
-# - No GPOs, no memberships yet
-
 Import-Module ActiveDirectory -ErrorAction Stop
 
 # ----------------------------
-# Domain Context
+# Domain context
 # ----------------------------
 $DomainDN = (Get-ADDomain).DistinguishedName
 
-# ----------------------------
-# OU Definitions
-# ----------------------------
-$OUMap = @{
+$OUs = @{
     ServiceAccounts = "OU=Service Accounts,$DomainDN"
     Groups          = "OU=ConfigMgr Groups,$DomainDN"
     Servers         = "OU=ConfigMgr Servers,$DomainDN"
 }
 
 # ----------------------------
-# Ensure OUs Exist
+# Ensure OUs exist
 # ----------------------------
-foreach ($OU in $OUMap.Values) {
+foreach ($OU in $OUs.Values) {
     if (-not (Get-ADOrganizationalUnit -Identity $OU -ErrorAction SilentlyContinue)) {
-        New-ADOrganizationalUnit -Name ($OU -split ",")[0] -Path ($OU -replace "^OU=[^,]+,","")
+        New-ADOrganizationalUnit `
+            -Name ($OU -split ",")[0].Substring(3) `
+            -Path ($OU -replace "^OU=[^,]+,","")
     }
 }
 
 # ----------------------------
-# Group Definitions
+# Group definitions
 # ----------------------------
 $Groups = @(
     "ConfigMgr_Servers",
@@ -48,20 +37,21 @@ $Groups = @(
 )
 
 # ----------------------------
-# Ensure Groups Exist
+# Create groups
 # ----------------------------
 foreach ($Group in $Groups) {
-    if (-not (Get-ADGroup -Identity $Group -ErrorAction SilentlyContinue)) {
+    if (-not (Get-ADGroup -Filter "Name -eq '$Group'" -SearchBase $OUs.Groups -ErrorAction SilentlyContinue)) {
         New-ADGroup `
             -Name $Group `
+            -SamAccountName $Group `
             -GroupScope Global `
             -GroupCategory Security `
-            -Path $OUMap.Groups
+            -Path $OUs.Groups
     }
 }
 
 # ----------------------------
-# Service Account Definitions
+# Service accounts
 # ----------------------------
 $ServiceAccounts = @(
     "CM_Admin",
@@ -73,15 +63,12 @@ $ServiceAccounts = @(
     "RMSProxy_SRV"
 )
 
-# ----------------------------
-# Create Service Accounts
-# ----------------------------
 foreach ($User in $ServiceAccounts) {
-    if (-not (Get-ADUser -Identity $User -ErrorAction SilentlyContinue)) {
+    if (-not (Get-ADUser -Filter "SamAccountName -eq '$User'" -SearchBase $OUs.ServiceAccounts -ErrorAction SilentlyContinue)) {
         New-ADUser `
             -Name $User `
             -SamAccountName $User `
-            -Path $OUMap.ServiceAccounts `
+            -Path $OUs.ServiceAccounts `
             -Enabled $true `
             -AccountPassword (ConvertTo-SecureString "ChangeMe-Immediately!" -AsPlainText -Force) `
             -PasswordNeverExpires $true `
@@ -90,11 +77,11 @@ foreach ($User in $ServiceAccounts) {
 }
 
 # ----------------------------
-# Final Validation Summary
+# Final validation (CORRECT)
 # ----------------------------
 [PSCustomObject]@{
-    Domain        = $DomainDN
-    OUsCreated    = $OUMap.Values
-    GroupsCreated = $Groups
-    UsersCreated  = $ServiceAccounts
+    Domain             = $DomainDN
+    OUs                = $OUs.Values
+    GroupsPresent      = (Get-ADGroup -SearchBase $OUs.Groups -Filter * | Select -Expand Name)
+    ServiceAccounts    = (Get-ADUser  -SearchBase $OUs.ServiceAccounts -Filter * | Select -Expand SamAccountName)
 }
