@@ -1,0 +1,139 @@
+# --- Short URLs ---
+aka.ms
+go.microsoft.com
+
+# --- Authentication & Device Metadata ---
+login.live.com
+login.microsoftonline.com
+login.microsoft.com
+login.windows.net
+account.live.com
+signup.live.com
+logincdn.msauth.net
+clientconfig.passport.net
+dmd.metaservices.microsoft.com
+
+# --- Windows Autopilot ---
+ztd.dds.microsoft.com
+cs.dds.microsoft.com
+
+# --- TPM / Hardware Attestation ---
+microsoftaik.azure.net
+ekop.intel.com
+ekcert.spserv.microsoft.com
+ftpm.amd.com
+
+# --- Windows Activation & Licensing ---
+activation.sls.microsoft.com
+validation.sls.microsoft.com
+activation-v2.sls.microsoft.com
+validation-v2.sls.microsoft.com
+licensing.mp.microsoft.com
+licensing.md.mp.microsoft.com
+
+# --- Certificate Revocation / OCSP ---
+crl.microsoft.com
+ocsp.digicert.com
+
+# --- Windows Update & Delivery Optimization ---
+ctldl.windowsupdate.com
+windowsupdate.com
+update.microsoft.com
+delivery.mp.microsoft.com
+dl.delivery.mp.microsoft.com
+emdl.ws.microsoft.com
+tsfe.trafficshaping.dsp.mp.microsoft.com
+prod.do.dsp.mp.microsoft.com
+geo-prod.do.dsp.mp.microsoft.com
+hwcdn.net
+adl.windows.com
+cs9.wac.phicdn.net
+
+# --- Microsoft Store ---
+displaycatalog.mp.microsoft.com
+displaycatalog.md.mp.microsoft.com
+purchase.mp.microsoft.com
+purchase.md.mp.microsoft.com
+storecatalogrevocation.storequality.microsoft.com
+pti.store.microsoft.com
+markets.books.microsoft.com
+storeedgefd.dsx.mp.microsoft.com
+livetileedge.dsx.mp.microsoft.com
+share.microsoft.com
+manage.devcenter.microsoft.com
+
+# --- Time & Connectivity Checks ---
+time.windows.com
+www.msftconnecttest.com
+
+# --- Telemetry / Diagnostics (DO NOT BLOCK INITIALLY) ---
+events.data.microsoft.com
+telemetry.microsoft.com
+vortex-win.data.microsoft.com
+settings.data.microsoft.com
+settings-win.data.microsoft.com
+watson.microsoft.com
+blob.core.windows.net
+
+# --- Notifications ---
+wns.windows.com
+
+# --- Microsoft Defender ---
+wdcp.microsoft.com
+definitionupdates.microsoft.com
+smartscreen.microsoft.com
+smartscreen-prod.microsoft.com
+checkappexec.microsoft.com
+
+# --- Office / Microsoft 365 ---
+officeclient.microsoft.com
+outlook.office365.com
+www.office.com
+config.office.com
+config.teams.microsoft.com
+nexusrules.officeapps.live.com
+ocos-office365-s2s.msedge.net
+client-office365-tas.msedge.net
+outlookmobile-office365-tas.msedge.net
+blobs.officehome.msocdn.com
+officehomeblobs.blob.core.windows.net
+oneclient.sfx.ms
+onecollector.cloudapp.aria
+v10.events.data.microsoft.com
+to-do.microsoft.com
+g.live.com
+msagfx.live.com
+
+# --- Edge ---
+iecvlist.microsoft.com
+msedge.api.cdp.microsoft.com
+
+# --- Azure & Entra ID ---
+graph.windows.net
+enterpriseregistration.windows.net
+secure.aadcdn.microsoftonline-p.com
+accountalt.azureedge.net
+ris-prod-atm.trafficmanager.net
+validation-v2.sls.trafficmanager.net
+wd-prod-fe.cloudapp.azure.com
+
+# --- Intune / MDM ---
+portal.manage.microsoft.com
+r.manage.microsoft.com
+m.manage.microsoft.com
+fef.msuc03.manage.microsoft.com
+wip.mam.manage.microsoft.com
+mam.manage.microsoft.com
+officeconfig.msocdn.com
+
+# --- Wildcard Roots (add as WILDCARD rules) ---
+.microsoft.com
+.mp.microsoft.com
+.md.mp.microsoft.com
+.windowsupdate.com
+.update.microsoft.com
+.delivery.mp.microsoft.com
+.manage.microsoft.com
+.msedge.net
+.akadns.net
+.s-microsoft.com
