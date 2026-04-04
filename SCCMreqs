@@ -1,0 +1,100 @@
+# ============================
+# ConfigMgr AD Object Bootstrap
+# ============================
+
+# Purpose:
+# - Create required OUs
+# - Create SCCM-related security groups
+# - Create service accounts
+# - No GPOs, no memberships yet
+
+Import-Module ActiveDirectory -ErrorAction Stop
+
+# ----------------------------
+# Domain Context
+# ----------------------------
+$DomainDN = (Get-ADDomain).DistinguishedName
+
+# ----------------------------
+# OU Definitions
+# ----------------------------
+$OUMap = @{
+    ServiceAccounts = "OU=Service Accounts,$DomainDN"
+    Groups          = "OU=ConfigMgr Groups,$DomainDN"
+    Servers         = "OU=ConfigMgr Servers,$DomainDN"
+}
+
+# ----------------------------
+# Ensure OUs Exist
+# ----------------------------
+foreach ($OU in $OUMap.Values) {
+    if (-not (Get-ADOrganizationalUnit -Identity $OU -ErrorAction SilentlyContinue)) {
+        New-ADOrganizationalUnit -Name ($OU -split ",")[0] -Path ($OU -replace "^OU=[^,]+,","")
+    }
+}
+
+# ----------------------------
+# Group Definitions
+# ----------------------------
+$Groups = @(
+    "ConfigMgr_Servers",
+    "SQL_Admins",
+    "ConfigMgrAdmins",
+    "Workstation_LocalAdmins",
+    "Server_LocalAdmins",
+    "CM_App_DeployUsers",
+    "Web_Server_Cert_Enrollment",
+    "Certificate_Admins"
+)
+
+# ----------------------------
+# Ensure Groups Exist
+# ----------------------------
+foreach ($Group in $Groups) {
+    if (-not (Get-ADGroup -Identity $Group -ErrorAction SilentlyContinue)) {
+        New-ADGroup `
+            -Name $Group `
+            -GroupScope Global `
+            -GroupCategory Security `
+            -Path $OUMap.Groups
+    }
+}
+
+# ----------------------------
+# Service Account Definitions
+# ----------------------------
+$ServiceAccounts = @(
+    "CM_Admin",
+    "CM_DJ",
+    "CM_NA",
+    "CM_CP_Workstation",
+    "CM_CP_Server",
+    "CM_SSRS",
+    "RMSProxy_SRV"
+)
+
+# ----------------------------
+# Create Service Accounts
+# ----------------------------
+foreach ($User in $ServiceAccounts) {
+    if (-not (Get-ADUser -Identity $User -ErrorAction SilentlyContinue)) {
+        New-ADUser `
+            -Name $User `
+            -SamAccountName $User `
+            -Path $OUMap.ServiceAccounts `
+            -Enabled $true `
+            -AccountPassword (ConvertTo-SecureString "ChangeMe-Immediately!" -AsPlainText -Force) `
+            -PasswordNeverExpires $true `
+            -CannotChangePassword $true
+    }
+}
+
+# ----------------------------
+# Final Validation Summary
+# ----------------------------
+[PSCustomObject]@{
+    Domain        = $DomainDN
+    OUsCreated    = $OUMap.Values
+    GroupsCreated = $Groups
+    UsersCreated  = $ServiceAccounts
+}
