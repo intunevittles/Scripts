@@ -1,0 +1,8 @@
+while read domain; do
+  [[ "$domain" =~ ^#|^$ ]] && continue
+  if [[ "$domain" == .* ]]; then
+    pihole --wild "$domain"
+  else
+    pihole -w "$domain"
+  fi
+done < ms-allowlist.txt
