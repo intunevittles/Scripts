@@ -1,0 +1,36 @@
+Set-ExecutionPolicy Bypass -Scope Process -Force
+
+$OutDir  = 'C:\HWID'
+$TempCsv = Join-Path $OutDir 'temp.csv'
+$Script  = Join-Path $OutDir 'Get-WindowsAutopilotInfo.ps1'
+
+New-Item -Path $OutDir -ItemType Directory -Force | Out-Null
+
+# --- Download Autopilot script directly (no PSGallery / NuGet) ---
+$Uri = 'https://raw.githubusercontent.com/intunevittles/Scripts/main/Get-WindowsAutopilotInfo.ps1'
+Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $Script
+
+# --- Collect HWID ---
+& $Script -OutputFile $TempCsv -Quiet
+
+if (-not (Test-Path $TempCsv)) {
+    throw "HWID CSV was not created"
+}
+
+# --- Rename CSV to SerialNumber.csv ---
+$Csv = Import-Csv $TempCsv
+
+$Serial = $Csv.SerialNumber
+if (-not $Serial) {
+    $Serial = $Csv.'Device Serial Number'
+}
+
+if (-not $Serial) {
+    throw "Serial number not found in HWID CSV"
+}
+
+$FinalCsv = Join-Path $OutDir "$Serial.csv"
+Move-Item $TempCsv $FinalCsv -Force
+
+# --- Optional: Launch Dell site ---
+Start-Process "https://mft.dell.com/"
