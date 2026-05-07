@@ -1,0 +1,30 @@
+$OutDir  = 'C:\HWID'
+$TempCsv = Join-Path $OutDir 'temp.csv'
+
+New-Item -Path $OutDir -ItemType Directory -Force | Out-Null
+
+$ScriptName = 'Get-WindowsAutoPilotInfo'
+
+# Install if missing
+if (-not (Get-InstalledScript -Name $ScriptName -ErrorAction SilentlyContinue)) {
+    Install-Script -Name $ScriptName -Force -Confirm:$false
+}
+
+# Resolve actual installed script path (no PATH dependency)
+$Script = Get-InstalledScript -Name $ScriptName
+$ScriptPath = Join-Path $Script.InstalledLocation "$ScriptName.ps1"
+
+if (-not (Test-Path $ScriptPath)) {
+    throw "Autopilot script not found at expected path: $ScriptPath"
+}
+
+# Run it explicitly
+& $ScriptPath -OutputFile $TempCsv
+
+# Process output
+$Csv    = Import-Csv $TempCsv
+$Serial = $Csv.'Device Serial Number'
+
+Move-Item $TempCsv (Join-Path $OutDir "$Serial.csv") -Force
+
+Start-Process "msedge.exe" '--no-first-run https://mft.dell.com/'
